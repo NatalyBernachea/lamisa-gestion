@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Venta - LAMISA</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 20px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .venta-container { 
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            max-width: 800px;
+            margin: 20px auto;
+            border-top: 5px solid var(--secondary-color);
+        }
+
+        .section-title { 
+            border-bottom: 3px solid var(--secondary-color);
+            padding-bottom: 10px;
+            margin-bottom: 25px;
+            color: var(--primary-color);
+            font-size: 1.5em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-row { 
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group { 
+            flex: 1;
+            margin-bottom: 20px;
+        }
+
+        .form-group label { 
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
+            font-size: 0.95em;
+        }
+
+        .form-group input, 
+        .form-group select { 
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: var(--border-radius);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        .form-group input:hover, 
+        .form-group select:hover {
+            border-color: var(--secondary-color);
+        }
+
+        .btn-primary { 
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .btn-primary:hover { 
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .readonly-field {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        /* Estilo para campos requeridos */
+        .required-field::after {
+            content: '*';
+            color: var(--accent-color);
+            margin-left: 4px;
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .venta-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
+</head>
+<body>
+    <div class="venta-container">
+        <h2 class="section-title">Registro de Venta</h2>
+        <form id="formVenta" onsubmit="registrarVenta(event)">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tipoServicio" class="required-field">Tipo de Servicio:</label>
+                    <select id="tipoServicio" required>
+                        <option value="">Seleccione el tipo de servicio</option>
+                        <option value="laminado">Laminado</option>
+                        <option value="estampado">Estampado</option>
+                        <option value="venta">Venta de Material</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fechaVenta" class="required-field">Fecha:</label>
+                    <input type="date" id="fechaVenta" required>
+                </div>
+            </div>
+            <h3 class="section-title">Información del Cliente</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="nombreCliente">Nombre del Cliente:</label>
+                    <input type="text" id="nombreCliente">
+                </div>
+                <div class="form-group">
+                    <label for="telefonoCliente">Teléfono:</label>
+                    <input type="tel" id="telefonoCliente">
+                </div>
+            </div>
+            <h3 class="section-title">Información del Producto</h3>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="peso" class="required-field">Peso (gramos):</label>
+                    <input type="number" id="peso" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="precioUnitario" class="required-field">Precio por Gramo:</label>
+                    <input type="number" id="precioUnitario" step="0.01" min="0" required onchange="calcularTotal()">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="total">Total:</label>
+                    <input type="number" id="total" readonly class="readonly-field">
+                </div>
+                <div class="form-group">
+                    <label for="metodoPago" class="required-field">Método de Pago:</label>
+                    <select id="metodoPago" required>
+                        <option value="">Seleccione método de pago</option>
+                        <option value="contado">Contado</option>
+                        <option value="transferencia">Transferencia</option>
+                        <option value="yape">Yape</option>
+                    </select>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary">Registrar Venta</button>
+        </form>
+    </div>
+
+    <script>
+        // Establecer la fecha actual
+        document.getElementById("fechaVenta").valueAsDate = new Date();
+        
+        // Función para calcular el total
+        function calcularTotal() {
+            const peso = parseFloat(document.getElementById("peso").value) || 0;
+            const precioUnitario = parseFloat(document.getElementById("precioUnitario").value) || 0;
+            const total = peso * precioUnitario;
+            document.getElementById("total").value = total.toFixed(2);
+        }
+        
+        // Agregar listeners para calcular el total
+        document.getElementById("peso").addEventListener("input", calcularTotal);
+        document.getElementById("precioUnitario").addEventListener("input", calcularTotal);
+        
+        // Función para registrar la venta
+        async function registrarVenta(event) {
+            event.preventDefault();
+            
+            const venta = {
+                tipoServicio: document.getElementById("tipoServicio").value,
+                fecha: document.getElementById("fechaVenta").value,
+                cliente: {
+                    nombre: document.getElementById("nombreCliente").value,
+                    telefono: document.getElementById("telefonoCliente").value
+                },
+                peso: parseFloat(document.getElementById("peso").value),
+                precioUnitario: parseFloat(document.getElementById("precioUnitario").value),
+                total: parseFloat(document.getElementById("total").value),
+                metodoPago: document.getElementById("metodoPago").value
+            };
+            
+            try {
+                const response = await fetch("/api/registrar-venta", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": "Bearer " + localStorage.getItem("token")
+                    },
+                    body: JSON.stringify(venta)
+                });
+                
+                const data = await response.json();
+                if (response.ok) {
+                    alert("Venta registrada exitosamente");
+                    window.close();
+                } else {
+                    alert(data.message || "Error al registrar la venta");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al conectar con el servidor");
+            }
+        }
+    </script>
+</body>
+</html> 
