@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LAMISA - Registro de Ventas</title>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --background-color: #ecf0f1;
+            --text-color: #2c3e50;
+            --border-radius: 10px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--background-color);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-color);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background-color: white;
+            padding: 20px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            border: none;
+            cursor: pointer;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-color);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--box-shadow);
+        }
+
+        .ventas-table {
+            width: 100%;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .ventas-table th,
+        .ventas-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ventas-table th {
+            background-color: var(--primary-color);
+            color: white;
+            font-weight: 500;
+        }
+
+        .ventas-table tr:hover {
+            background-color: #f5f6fa;
+        }
+
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .no-ventas {
+            text-align: center;
+            padding: 40px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            color: var(--text-color);
+            font-size: 1.2em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Registro de Ventas</h1>
+            <div class="actions">
+                <button class="btn btn-primary" onclick="descargarVentas()">Descargar Excel</button>
+                <button class="btn btn-primary" onclick="window.location.href='dashboard.html'">Volver al Dashboard</button>
+            </div>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" onclick="window.location.href='venta.html'">Nueva Venta</button>
+        </div>
+
+        <div id="ventas-container">
+            <table class="ventas-table">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Tipo de Servicio</th>
+                        <th>Cliente</th>
+                        <th>Peso (g)</th>
+                        <th>Total</th>
+                        <th>Método de Pago</th>
+                    </tr>
+                </thead>
+                <tbody id="ventas-body">
+                    <!-- Las ventas se cargarán aquí dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Verificar autenticación
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'index.html';
+        }
+
+        // Cargar ventas
+        async function cargarVentas() {
+            try {
+                const response = await fetch('/api/ventas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al cargar las ventas');
+                }
+
+                const ventas = await response.json();
+                const tbody = document.getElementById('ventas-body');
+                
+                if (ventas.length === 0) {
+                    document.getElementById('ventas-container').innerHTML = `
+                        <div class="no-ventas">
+                            No hay ventas registradas aún
+                        </div>
+                    `;
+                    return;
+                }
+
+                tbody.innerHTML = ventas.map(venta => `
+                    <tr>
+                        <td>${new Date(venta.fecha).toLocaleDateString()}</td>
+                        <td>${venta.tipoServicio}</td>
+                        <td>${venta.cliente?.nombre || 'N/A'}</td>
+                        <td>${venta.peso}</td>
+                        <td>S/ ${venta.total}</td>
+                        <td>${venta.metodoPago}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al cargar las ventas');
+            }
+        }
+
+        // Descargar ventas en Excel
+        async function descargarVentas() {
+            try {
+                const response = await fetch('/api/descargar-datos?tipo=ventas', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Error al descargar las ventas');
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'ventas.xlsx';
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al descargar las ventas');
+            }
+        }
+
+        // Cargar ventas al iniciar
+        cargarVentas();
+    </script>
+</body>
+</html> 
