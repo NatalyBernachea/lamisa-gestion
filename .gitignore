@@ -1,0 +1,21 @@
+# Dependencias
+node_modules/
+
+# Archivos de entorno
+.env
+
+# Archivos de registro
+registros/
+*.log
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de credenciales
+credentials.json
+token.json
+
+# Otros
+.vscode/
+.idea/ 

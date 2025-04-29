@@ -1,0 +1,351 @@
+/* Reset y estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Header y navegación */
+header {
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    position: fixed;
+    width: 100%;
+    top: 0;
+    z-index: 1000;
+}
+
+nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 5%;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e63946;
+}
+
+.nav-links {
+    display: flex;
+    list-style: none;
+}
+
+.nav-links li {
+    margin-left: 2rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    transition: color 0.3s;
+}
+
+.nav-links a:hover {
+    color: #e63946;
+}
+
+/* Hero section */
+.hero {
+    height: 100vh;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: white;
+    padding: 0 1rem;
+}
+
+.hero-content h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.hero-content p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+.btn {
+    display: inline-block;
+    padding: 1rem 2rem;
+    background-color: #e63946;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s;
+}
+
+.btn:hover {
+    background-color: #c1121f;
+}
+
+/* Menú section */
+.menu {
+    padding: 5rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.menu h2 {
+    text-align: center;
+    margin-bottom: 3rem;
+    font-size: 2.5rem;
+    color: #333;
+}
+
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.menu-item {
+    background: white;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    transition: transform 0.3s;
+}
+
+.menu-item:hover {
+    transform: translateY(-5px);
+}
+
+.menu-item img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.menu-item h3 {
+    padding: 1rem;
+    color: #e63946;
+}
+
+.menu-item p {
+    padding: 0 1rem;
+    color: #666;
+}
+
+.price {
+    display: block;
+    padding: 1rem;
+    font-weight: bold;
+    color: #e63946;
+}
+
+/* About section */
+.about {
+    background-color: #f8f9fa;
+    padding: 5rem 1rem;
+    text-align: center;
+}
+
+.about h2 {
+    margin-bottom: 2rem;
+    font-size: 2.5rem;
+}
+
+.about-content {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Contact section */
+.contact {
+    padding: 5rem 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.contact h2 {
+    margin-bottom: 3rem;
+    font-size: 2.5rem;
+}
+
+.contact-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.contact-item i {
+    font-size: 1.5rem;
+    color: #e63946;
+}
+
+.social-media {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+}
+
+.social-media a {
+    color: #333;
+    font-size: 1.5rem;
+    transition: color 0.3s;
+}
+
+.social-media a:hover {
+    color: #e63946;
+}
+
+/* Footer */
+footer {
+    background-color: #333;
+    color: white;
+    text-align: center;
+    padding: 2rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .nav-links {
+        display: none;
+    }
+    
+    .hero-content h1 {
+        font-size: 2rem;
+    }
+    
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Estilos generales */
+.action-btn {
+    @apply bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-all duration-300;
+    @apply flex flex-col items-center justify-center gap-2;
+    @apply text-lg font-semibold text-gray-800;
+    min-height: 150px;
+}
+
+.action-btn i {
+    @apply text-3xl text-blue-500;
+}
+
+/* Estilos para modales */
+.modal {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center;
+    z-index: 1000;
+}
+
+.modal-content {
+    @apply bg-white rounded-lg shadow-xl p-6;
+    @apply w-full max-w-md;
+}
+
+.modal-header {
+    @apply flex justify-between items-center mb-4;
+}
+
+.modal-title {
+    @apply text-xl font-bold text-gray-800;
+}
+
+.modal-close {
+    @apply text-gray-500 hover:text-gray-700;
+}
+
+.form-group {
+    @apply mb-4;
+}
+
+.form-label {
+    @apply block text-gray-700 mb-2;
+}
+
+.form-input {
+    @apply w-full p-2 border rounded;
+}
+
+.form-select {
+    @apply w-full p-2 border rounded;
+}
+
+/* Estilos para la tabla de resumen */
+.resumen-table {
+    @apply w-full border-collapse;
+}
+
+.resumen-table th,
+.resumen-table td {
+    @apply border p-2 text-left;
+}
+
+.resumen-table th {
+    @apply bg-gray-100 font-semibold;
+}
+
+/* Estilos para filtros */
+.filters {
+    @apply flex flex-wrap gap-4 mb-4;
+}
+
+.filter-group {
+    @apply flex flex-col;
+}
+
+.filter-label {
+    @apply text-sm text-gray-600 mb-1;
+}
+
+/* Estilos para botones de acción */
+.btn-primary {
+    @apply bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600;
+}
+
+.btn-secondary {
+    @apply bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600;
+}
+
+.btn-danger {
+    @apply bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600;
+}
+
+/* Estilos para mensajes de error */
+.error-message {
+    @apply text-red-500 text-sm mt-1;
+}
+
+/* Estilos para mensajes de éxito */
+.success-message {
+    @apply text-green-500 text-sm mt-1;
+}
+
+/* Estilos responsivos */
+@media (max-width: 768px) {
+    .action-btn {
+        min-height: 120px;
+        @apply p-4;
+    }
+    
+    .modal-content {
+        @apply w-11/12;
+    }
+} 
