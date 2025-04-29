@@ -1,24 +1,60 @@
-{
-  "name": "lamisa-gestion",
-  "version": "1.0.0",
-  "description": "Sistema de gestión para LAMISA",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3",
-    "mongoose": "^8.0.3"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.2"
-  },
-  "engines": {
-    "node": ">=14.0.0"
-  }
+==> Cloning from https://github.com/NatalyBernachea/lamisa-gestion
+==> Checking out commit aa8280e108af21c70162b2106c2ff8f1b95b7861 in branch main
+==> Requesting Node.js version >=14.0.0
+==> Using Node.js version 23.11.0 via /opt/render/project/src/package.json
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Using Bun version 1.1.0 (default)
+==> Docs on specifying a bun version: https://render.com/docs/bun-version
+==> Running build command 'npm install'...
+added 123 packages, and audited 124 packages in 3s
+17 packages are looking for funding
+  run `npm fund` for details
+found 0 vulnerabilities
+==> Uploading build...
+==> Uploaded in 3.9s. Compression took 0.9s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'node server.js'
+node:internal/modules/cjs/loader:1408
+  throw err;
+  ^
+Error: Cannot find module 'exceljs'
+Require stack:
+- /opt/render/project/src/server.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1405:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1061:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1066:22)
+    at Function._load (node:internal/modules/cjs/loader:1215:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1491:12)
+    at require (node:internal/modules/helpers:135:16)
+    at Object.<anonymous> (/opt/render/project/src/server.js:7:17)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ '/opt/render/project/src/server.js' ]
 }
+Node.js v23.11.0
+==> Exited with status 1
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
+==> Running 'node server.js'
+node:internal/modules/cjs/loader:1408
+  throw err;
+  ^
+Error: Cannot find module 'exceljs'
+Require stack:
+- /opt/render/project/src/server.js
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1405:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1061:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1066:22)
+    at Function._load (node:internal/modules/cjs/loader:1215:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Module.require (node:internal/modules/cjs/loader:1491:12)
+    at require (node:internal/modules/helpers:135:16)
+    at Object.<anonymous> (/opt/render/project/src/server.js:7:17)
+    at Module._compile (node:internal/modules/cjs/loader:1734:14) {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: [ '/opt/render/project/src/server.js' ]
+}
+Node.js v23.11.0
