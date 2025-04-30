@@ -87,10 +87,6 @@ const modalTemplates = {
                         <input type="text" class="form-input" required>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Peso</label>
-                        <input type="number" class="form-input" required>
-                    </div>
-                    <div class="form-group">
                         <label class="form-label">Total</label>
                         <input type="number" class="form-input" required>
                     </div>

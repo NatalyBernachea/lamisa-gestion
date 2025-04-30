@@ -174,7 +174,6 @@
                             <th>Fecha</th>
                             <th>Tipo de Servicio</th>
                             <th>Cliente</th>
-                            <th>Peso (g)</th>
                             <th>Total</th>
                             <th>Método de Pago</th>
                         </tr>
@@ -275,7 +274,6 @@
                                 <td>${new Date(venta.fecha).toLocaleDateString()}</td>
                                 <td>${venta.tipoServicio}</td>
                                 <td>${venta.cliente || '-'}</td>
-                                <td>${venta.peso}</td>
                                 <td>S/ ${venta.total}</td>
                                 <td>${venta.metodoPago}</td>
                             </tr>
