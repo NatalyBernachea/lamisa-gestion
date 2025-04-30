@@ -199,28 +199,6 @@ app.delete('/api/ventas/:id', autenticarToken, (req, res) => {
     }
 });
 
-// Actualizar una compra
-app.put('/api/compras/:id', autenticarToken, (req, res) => {
-    try {
-        const index = compras.findIndex(c => c.id === parseInt(req.params.id));
-        if (index === -1) {
-            return res.status(404).json({ message: 'Compra no encontrada' });
-        }
-        
-        compras[index] = {
-            ...compras[index],
-            ...req.body,
-            id: compras[index].id, // Mantener el ID original
-            fechaActualizacion: new Date()
-        };
-        
-        res.json(compras[index]);
-    } catch (error) {
-        console.error('Error al actualizar compra:', error);
-        res.status(500).json({ message: 'Error al actualizar la compra' });
-    }
-});
-
 // Eliminar una compra
 app.delete('/api/compras/:id', autenticarToken, (req, res) => {
     try {
