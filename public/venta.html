@@ -17,28 +17,31 @@
 
         body { 
             font-family: 'Segoe UI', Arial, sans-serif;
-            padding: 20px;
+            padding: 10px;
             background-color: var(--background-color);
             color: var(--text-color);
             line-height: 1.6;
+            margin: 0;
+            min-height: 100vh;
         }
 
         .venta-container { 
             background-color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: var(--border-radius);
             box-shadow: var(--box-shadow);
             max-width: 800px;
-            margin: 20px auto;
+            margin: 10px auto;
             border-top: 5px solid var(--secondary-color);
+            width: 95%;
         }
 
         .section-title { 
             border-bottom: 3px solid var(--secondary-color);
             padding-bottom: 10px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             color: var(--primary-color);
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -46,13 +49,15 @@
 
         .form-row { 
             display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
         }
 
         .form-group { 
-            flex: 1;
-            margin-bottom: 20px;
+            flex: 1 1 300px;
+            min-width: 250px;
+            margin-bottom: 15px;
         }
 
         .form-group label { 
@@ -71,6 +76,17 @@
             border-radius: var(--border-radius);
             font-size: 16px;
             transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+
+        .form-group select {
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 1rem center;
+            background-size: 1em;
+            padding-right: 2.5rem;
         }
 
         .form-group input:focus, 
@@ -85,10 +101,21 @@
             border-color: var(--secondary-color);
         }
 
+        /* Mejoras para inputs numéricos */
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
         .btn-primary { 
             background-color: var(--secondary-color);
             color: white;
-            padding: 12px 30px;
+            padding: 15px 30px;
             border: none;
             border-radius: var(--border-radius);
             cursor: pointer;
@@ -99,6 +126,7 @@
             transition: all 0.3s ease;
             width: 100%;
             margin-top: 20px;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-primary:hover { 
@@ -131,6 +159,95 @@
 
         .venta-container {
             animation: fadeIn 0.5s ease-out;
+        }
+
+        /* Media Queries para diferentes tamaños de pantalla */
+        @media (max-width: 480px) {
+            body {
+                padding: 5px;
+            }
+
+            .venta-container {
+                padding: 15px;
+                margin: 5px auto;
+                width: 98%;
+            }
+
+            .section-title {
+                font-size: 1.2em;
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                min-width: 100%;
+            }
+
+            .form-row {
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .form-group input,
+            .form-group select {
+                padding: 10px;
+                font-size: 14px;
+            }
+
+            .btn-primary {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+
+        /* Media Query para tablets */
+        @media (min-width: 481px) and (max-width: 768px) {
+            .venta-container {
+                width: 90%;
+                padding: 20px;
+            }
+
+            .form-group {
+                min-width: calc(50% - 10px);
+            }
+        }
+
+        /* Media Query para pantallas táctiles */
+        @media (hover: none) {
+            .btn-primary:hover {
+                transform: none;
+                box-shadow: none;
+            }
+
+            .form-group input:hover, 
+            .form-group select:hover {
+                border-color: #ddd;
+            }
+        }
+
+        /* Media Query para modo oscuro del sistema */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background-color: #1a1a1a;
+                --text-color: #ffffff;
+            }
+
+            .venta-container,
+            .form-group input,
+            .form-group select {
+                background-color: #2d2d2d;
+                color: #ffffff;
+            }
+
+            .form-group input,
+            .form-group select {
+                border-color: #404040;
+            }
+
+            .form-group input:focus,
+            .form-group select:focus {
+                border-color: var(--secondary-color);
+                box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.3);
+            }
         }
     </style>
 </head>
@@ -170,16 +287,14 @@
                     <label for="peso" class="required-field">Peso (gramos):</label>
                     <input type="number" id="peso" step="0.01" min="0" required>
                 </div>
-                <div class="form-group">
-                    <label for="precioUnitario" class="required-field">Precio por Gramo:</label>
-                    <input type="number" id="precioUnitario" step="0.01" min="0" required onchange="calcularTotal()">
-                </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label for="total">Total:</label>
-                    <input type="number" id="total" readonly class="readonly-field">
+                    <label for="total" class="required-field">Total:</label>
+                    <input type="number" id="total" step="0.01" min="0" required>
                 </div>
+            </div>
+            <div class="form-row">
                 <div class="form-group">
                     <label for="metodoPago" class="required-field">Método de Pago:</label>
                     <select id="metodoPago" required>
@@ -198,18 +313,6 @@
         // Establecer la fecha actual
         document.getElementById("fechaVenta").valueAsDate = new Date();
         
-        // Función para calcular el total
-        function calcularTotal() {
-            const peso = parseFloat(document.getElementById("peso").value) || 0;
-            const precioUnitario = parseFloat(document.getElementById("precioUnitario").value) || 0;
-            const total = peso * precioUnitario;
-            document.getElementById("total").value = total.toFixed(2);
-        }
-        
-        // Agregar listeners para calcular el total
-        document.getElementById("peso").addEventListener("input", calcularTotal);
-        document.getElementById("precioUnitario").addEventListener("input", calcularTotal);
-        
         // Función para registrar la venta
         async function registrarVenta(event) {
             event.preventDefault();
@@ -217,31 +320,28 @@
             const venta = {
                 tipoServicio: document.getElementById("tipoServicio").value,
                 fecha: document.getElementById("fechaVenta").value,
-                cliente: {
-                    nombre: document.getElementById("nombreCliente").value,
-                    telefono: document.getElementById("telefonoCliente").value
-                },
+                cliente: document.getElementById("nombreCliente").value,
+                telefono: document.getElementById("telefonoCliente").value,
                 peso: parseFloat(document.getElementById("peso").value),
-                precioUnitario: parseFloat(document.getElementById("precioUnitario").value),
                 total: parseFloat(document.getElementById("total").value),
                 metodoPago: document.getElementById("metodoPago").value
             };
             
             try {
-                const response = await fetch("/api/registrar-venta", {
+                const response = await fetch("/api/ventas", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
-                        "Authorization": "Bearer " + localStorage.getItem("token")
+                        "Authorization": `Bearer ${localStorage.getItem("token")}`
                     },
                     body: JSON.stringify(venta)
                 });
                 
-                const data = await response.json();
                 if (response.ok) {
                     alert("Venta registrada exitosamente");
-                    window.close();
+                    window.location.href = 'dashboard.html';
                 } else {
+                    const data = await response.json();
                     alert(data.message || "Error al registrar la venta");
                 }
             } catch (error) {
@@ -251,4 +351,4 @@
         }
     </script>
 </body>
-</html> 
+</html>
