@@ -1,4 +1,3 @@
-require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -70,6 +69,22 @@ app.post('/api/ventas', autenticarToken, (req, res) => {
     }
 });
 
+// Ruta para compras
+app.post('/api/compras', autenticarToken, (req, res) => {
+    try {
+        const compra = {
+            id: Date.now(),
+            ...req.body,
+            fechaRegistro: new Date()
+        };
+        compras.push(compra);
+        res.status(201).json(compra);
+    } catch (error) {
+        console.error('Error al registrar compra:', error);
+        res.status(500).json({ message: 'Error al registrar la compra' });
+    }
+});
+
 // Ruta para obtener ventas
 app.get('/api/ventas', autenticarToken, (req, res) => {
     try {
@@ -91,6 +106,44 @@ app.get('/api/ventas', autenticarToken, (req, res) => {
     } catch (error) {
         console.error('Error al obtener ventas:', error);
         res.status(500).json({ message: 'Error al obtener las ventas' });
+    }
+});
+
+// Obtener compras
+app.get('/api/compras', autenticarToken, (req, res) => {
+    try {
+        let comprasFiltradas = [...compras];
+        
+        // Si se proporciona fecha desde, filtrar las compras
+        if (req.query.desde) {
+            const fechaDesde = new Date(req.query.desde);
+            comprasFiltradas = compras.filter(compra => {
+                const fechaCompra = new Date(compra.fecha);
+                return fechaCompra >= fechaDesde;
+            });
+        }
+        
+        // Ordenar por fecha descendente (más reciente primero)
+        comprasFiltradas.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+        
+        res.json(comprasFiltradas);
+    } catch (error) {
+        console.error('Error al obtener compras:', error);
+        res.status(500).json({ message: 'Error al obtener las compras' });
+    }
+});
+
+// Obtener una compra específica
+app.get('/api/compras/:id', autenticarToken, (req, res) => {
+    try {
+        const compra = compras.find(c => c.id === parseInt(req.params.id));
+        if (!compra) {
+            return res.status(404).json({ message: 'Compra no encontrada' });
+        }
+        res.json(compra);
+    } catch (error) {
+        console.error('Error al obtener compra:', error);
+        res.status(500).json({ message: 'Error al obtener la compra' });
     }
 });
 
@@ -146,25 +199,42 @@ app.delete('/api/ventas/:id', autenticarToken, (req, res) => {
     }
 });
 
-// Ruta para compras
-app.post('/api/compras', autenticarToken, (req, res) => {
+// Actualizar una compra
+app.put('/api/compras/:id', autenticarToken, (req, res) => {
     try {
-        const compra = {
-            id: Date.now(),
+        const index = compras.findIndex(c => c.id === parseInt(req.params.id));
+        if (index === -1) {
+            return res.status(404).json({ message: 'Compra no encontrada' });
+        }
+        
+        compras[index] = {
+            ...compras[index],
             ...req.body,
-            fechaRegistro: new Date()
+            id: compras[index].id, // Mantener el ID original
+            fechaActualizacion: new Date()
         };
-        compras.push(compra);
-        res.status(201).json(compra);
+        
+        res.json(compras[index]);
     } catch (error) {
-        console.error('Error al registrar compra:', error);
-        res.status(500).json({ message: 'Error al registrar la compra' });
+        console.error('Error al actualizar compra:', error);
+        res.status(500).json({ message: 'Error al actualizar la compra' });
     }
 });
 
-// Obtener compras
-app.get('/api/compras', autenticarToken, (req, res) => {
-    res.json(compras);
+// Eliminar una compra
+app.delete('/api/compras/:id', autenticarToken, (req, res) => {
+    try {
+        const index = compras.findIndex(c => c.id === parseInt(req.params.id));
+        if (index === -1) {
+            return res.status(404).json({ message: 'Compra no encontrada' });
+        }
+        
+        compras.splice(index, 1);
+        res.json({ message: 'Compra eliminada exitosamente' });
+    } catch (error) {
+        console.error('Error al eliminar compra:', error);
+        res.status(500).json({ message: 'Error al eliminar la compra' });
+    }
 });
 
 // Descargar Excel de ventas
