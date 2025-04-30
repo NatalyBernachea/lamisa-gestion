@@ -94,6 +94,58 @@ app.get('/api/ventas', autenticarToken, (req, res) => {
     }
 });
 
+// Ruta para obtener una venta específica
+app.get('/api/ventas/:id', autenticarToken, (req, res) => {
+    try {
+        const venta = ventas.find(v => v.id === parseInt(req.params.id));
+        if (!venta) {
+            return res.status(404).json({ message: 'Venta no encontrada' });
+        }
+        res.json(venta);
+    } catch (error) {
+        console.error('Error al obtener venta:', error);
+        res.status(500).json({ message: 'Error al obtener la venta' });
+    }
+});
+
+// Ruta para actualizar una venta
+app.put('/api/ventas/:id', autenticarToken, (req, res) => {
+    try {
+        const index = ventas.findIndex(v => v.id === parseInt(req.params.id));
+        if (index === -1) {
+            return res.status(404).json({ message: 'Venta no encontrada' });
+        }
+        
+        ventas[index] = {
+            ...ventas[index],
+            ...req.body,
+            id: ventas[index].id, // Mantener el ID original
+            fechaActualizacion: new Date()
+        };
+        
+        res.json(ventas[index]);
+    } catch (error) {
+        console.error('Error al actualizar venta:', error);
+        res.status(500).json({ message: 'Error al actualizar la venta' });
+    }
+});
+
+// Ruta para eliminar una venta
+app.delete('/api/ventas/:id', autenticarToken, (req, res) => {
+    try {
+        const index = ventas.findIndex(v => v.id === parseInt(req.params.id));
+        if (index === -1) {
+            return res.status(404).json({ message: 'Venta no encontrada' });
+        }
+        
+        ventas.splice(index, 1);
+        res.json({ message: 'Venta eliminada exitosamente' });
+    } catch (error) {
+        console.error('Error al eliminar venta:', error);
+        res.status(500).json({ message: 'Error al eliminar la venta' });
+    }
+});
+
 // Ruta para compras
 app.post('/api/compras', autenticarToken, (req, res) => {
     try {
