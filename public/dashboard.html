@@ -67,9 +67,21 @@
             color: white;
         }
 
+        .btn-edit {
+            background-color: #f39c12;
+            color: white;
+            margin-right: 5px;
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--box-shadow);
+            opacity: 0.9;
         }
 
         .container {
@@ -190,6 +202,7 @@
                             <th>Cliente</th>
                             <th>Total</th>
                             <th>Método de Pago</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="salesTableBody"></tbody>
@@ -271,10 +284,27 @@
         // Funciones para ventas
         async function cargarVentas() {
             try {
-                // Calcular fecha de hace una semana
+                // Calcular fecha de hace una semana y fecha actual en zona horaria de Perú
                 const fechaActual = new Date();
-                const fechaSemanaAnterior = new Date(fechaActual);
-                fechaSemanaAnterior.setDate(fechaActual.getDate() - 7);
+                // Ajustar a zona horaria de Perú (UTC-5)
+                const offsetPeru = -5 * 60; // -5 horas en minutos
+                const fechaActualPeru = new Date(fechaActual.getTime() + (fechaActual.getTimezoneOffset() + offsetPeru) * 60000);
+                fechaActualPeru.setHours(23, 59, 59, 999);
+                
+                const fechaSemanaAnterior = new Date(fechaActualPeru);
+                fechaSemanaAnterior.setDate(fechaActualPeru.getDate() - 7);
+                fechaSemanaAnterior.setHours(0, 0, 0, 0);
+
+                // Formatear fechas para mostrar
+                const formatoFecha = { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    timeZone: 'America/Lima'
+                };
+
+                const fechaActualStr = fechaActualPeru.toLocaleDateString('es-PE', formatoFecha);
+                const fechaSemanaAnteriorStr = fechaSemanaAnterior.toLocaleDateString('es-PE', formatoFecha);
 
                 const response = await fetch('/api/ventas?desde=' + fechaSemanaAnterior.toISOString(), {
                     headers: {
@@ -290,17 +320,30 @@
                     // Agregar título con el rango de fechas
                     const titleElement = document.createElement('div');
                     titleElement.className = 'date-range';
-                    titleElement.textContent = `Ventas desde ${fechaSemanaAnterior.toLocaleDateString()} hasta ${fechaActual.toLocaleDateString()}`;
+                    titleElement.textContent = `Ventas desde ${fechaSemanaAnteriorStr} hasta ${fechaActualStr}`;
+                    const existingTitle = tbody.parentElement.parentElement.querySelector('.date-range');
+                    if (existingTitle) {
+                        existingTitle.remove();
+                    }
                     tbody.parentElement.parentElement.insertBefore(titleElement, tbody.parentElement);
                     
                     ventas.forEach(venta => {
+                        const fechaVenta = new Date(venta.fecha);
                         tbody.innerHTML += `
                             <tr>
-                                <td>${new Date(venta.fecha).toLocaleDateString()}</td>
+                                <td>${fechaVenta.toLocaleDateString('es-PE', formatoFecha)}</td>
                                 <td>${venta.tipoServicio}</td>
                                 <td>${venta.cliente || '-'}</td>
                                 <td>S/ ${parseFloat(venta.total).toFixed(2)}</td>
                                 <td>${venta.metodoPago}</td>
+                                <td>
+                                    <button class="btn btn-edit" onclick="editarVenta(${venta.id})">
+                                        Editar
+                                    </button>
+                                    <button class="btn btn-delete" onclick="eliminarVenta(${venta.id})">
+                                        Eliminar
+                                    </button>
+                                </td>
                             </tr>
                         `;
                     });
@@ -312,12 +355,56 @@
                     totalRow.innerHTML = `
                         <td colspan="3">Total de la semana:</td>
                         <td>S/ ${total.toFixed(2)}</td>
-                        <td></td>
+                        <td colspan="2"></td>
                     `;
                     tbody.appendChild(totalRow);
                 }
             } catch (error) {
                 console.error('Error al cargar ventas:', error);
+            }
+        }
+
+        // Función para editar venta
+        async function editarVenta(id) {
+            try {
+                const response = await fetch(`/api/ventas/${id}`, {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const venta = await response.json();
+                    // Redirigir a la página de edición con los datos de la venta
+                    window.location.href = `venta.html?id=${id}&edit=true&data=${encodeURIComponent(JSON.stringify(venta))}`;
+                }
+            } catch (error) {
+                console.error('Error al obtener venta:', error);
+                alert('Error al cargar los datos de la venta');
+            }
+        }
+
+        // Función para eliminar venta
+        async function eliminarVenta(id) {
+            if (confirm('¿Está seguro que desea eliminar esta venta?')) {
+                try {
+                    const response = await fetch(`/api/ventas/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        cargarVentas(); // Recargar la lista
+                        alert('Venta eliminada exitosamente');
+                    } else {
+                        alert('Error al eliminar la venta');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar la venta');
+                }
             }
         }
 
