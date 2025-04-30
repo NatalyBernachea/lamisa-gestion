@@ -128,6 +128,20 @@
             gap: 1rem;
         }
 
+        .date-range {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .total-row {
+            background-color: var(--background-color) !important;
+            font-weight: bold;
+        }
+
         @media (max-width: 768px) {
             .navbar {
                 padding: 1rem;
@@ -174,7 +188,6 @@
                             <th>Fecha</th>
                             <th>Tipo de Servicio</th>
                             <th>Cliente</th>
-                            <th>Peso (g)</th>
                             <th>Total</th>
                             <th>Método de Pago</th>
                         </tr>
@@ -258,7 +271,12 @@
         // Funciones para ventas
         async function cargarVentas() {
             try {
-                const response = await fetch('/api/ventas', {
+                // Calcular fecha de hace una semana
+                const fechaActual = new Date();
+                const fechaSemanaAnterior = new Date(fechaActual);
+                fechaSemanaAnterior.setDate(fechaActual.getDate() - 7);
+
+                const response = await fetch('/api/ventas?desde=' + fechaSemanaAnterior.toISOString(), {
                     headers: {
                         'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
@@ -269,18 +287,34 @@
                     const tbody = document.getElementById('salesTableBody');
                     tbody.innerHTML = '';
                     
+                    // Agregar título con el rango de fechas
+                    const titleElement = document.createElement('div');
+                    titleElement.className = 'date-range';
+                    titleElement.textContent = `Ventas desde ${fechaSemanaAnterior.toLocaleDateString()} hasta ${fechaActual.toLocaleDateString()}`;
+                    tbody.parentElement.parentElement.insertBefore(titleElement, tbody.parentElement);
+                    
                     ventas.forEach(venta => {
                         tbody.innerHTML += `
                             <tr>
                                 <td>${new Date(venta.fecha).toLocaleDateString()}</td>
                                 <td>${venta.tipoServicio}</td>
                                 <td>${venta.cliente || '-'}</td>
-                                <td>${venta.peso}</td>
-                                <td>S/ ${venta.total}</td>
+                                <td>S/ ${parseFloat(venta.total).toFixed(2)}</td>
                                 <td>${venta.metodoPago}</td>
                             </tr>
                         `;
                     });
+
+                    // Agregar total de la semana
+                    const total = ventas.reduce((sum, venta) => sum + parseFloat(venta.total), 0);
+                    const totalRow = document.createElement('tr');
+                    totalRow.className = 'total-row';
+                    totalRow.innerHTML = `
+                        <td colspan="3">Total de la semana:</td>
+                        <td>S/ ${total.toFixed(2)}</td>
+                        <td></td>
+                    `;
+                    tbody.appendChild(totalRow);
                 }
             } catch (error) {
                 console.error('Error al cargar ventas:', error);
@@ -314,6 +348,7 @@
         // Funciones para compras
         function abrirRegistroCompra() {
             document.getElementById('modalCompra').style.display = 'flex';
+            document.getElementById('fechaCompra').valueAsDate = new Date();
         }
 
         function cerrarModalCompra() {
@@ -368,7 +403,7 @@
                             <tr>
                                 <td>${new Date(compra.fecha).toLocaleDateString()}</td>
                                 <td>${compra.descripcion}</td>
-                                <td>S/ ${compra.total}</td>
+                                <td>S/ ${parseFloat(compra.total).toFixed(2)}</td>
                                 <td>${compra.documento}</td>
                             </tr>
                         `;
