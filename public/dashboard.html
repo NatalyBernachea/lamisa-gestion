@@ -67,21 +67,9 @@
             color: white;
         }
 
-        .btn-edit {
-            background-color: #f39c12;
-            color: white;
-            margin-right: 5px;
-        }
-
-        .btn-delete {
-            background-color: #e74c3c;
-            color: white;
-        }
-
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: var(--box-shadow);
-            opacity: 0.9;
         }
 
         .container {
@@ -140,20 +128,6 @@
             gap: 1rem;
         }
 
-        .date-range {
-            margin-bottom: 1rem;
-            padding: 0.5rem;
-            background-color: var(--background-color);
-            border-radius: var(--border-radius);
-            color: var(--primary-color);
-            font-weight: 500;
-        }
-
-        .total-row {
-            background-color: var(--background-color) !important;
-            font-weight: bold;
-        }
-
         @media (max-width: 768px) {
             .navbar {
                 padding: 1rem;
@@ -175,6 +149,14 @@
             .btn {
                 width: 100%;
             }
+        }
+
+        .btn-delete {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .btn-delete:hover {
+            opacity: 0.9;
         }
     </style>
 </head>
@@ -226,6 +208,7 @@
                             <th>Descripción</th>
                             <th>Total</th>
                             <th>Documento</th>
+                            <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody id="purchasesTableBody"></tbody>
@@ -353,14 +336,183 @@
                     const totalRow = document.createElement('tr');
                     totalRow.className = 'total-row';
                     totalRow.innerHTML = `
-                        <td colspan="3">Total de la semana:</td>
+                        <td colspan="4">Total de la semana:</td>
                         <td>S/ ${total.toFixed(2)}</td>
-                        <td colspan="2"></td>
+                        <td></td>
                     `;
                     tbody.appendChild(totalRow);
                 }
             } catch (error) {
                 console.error('Error al cargar ventas:', error);
+            }
+        }
+
+        async function descargarExcelVentas() {
+            try {
+                const response = await fetch('/api/ventas/excel', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'ventas.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }
+            } catch (error) {
+                console.error('Error al descargar Excel:', error);
+            }
+        }
+
+        // Funciones para compras
+        function abrirRegistroCompra() {
+            document.getElementById('modalCompra').style.display = 'flex';
+        }
+
+        function cerrarModalCompra() {
+            document.getElementById('modalCompra').style.display = 'none';
+            document.getElementById('formCompra').reset();
+        }
+
+        async function registrarCompra(event) {
+            event.preventDefault();
+            
+            const compra = {
+                fecha: document.getElementById('fechaCompra').value,
+                descripcion: document.getElementById('descripcionCompra').value,
+                total: document.getElementById('totalCompra').value,
+                documento: document.getElementById('documentoCompra').value
+            };
+            
+            try {
+                const response = await fetch('/api/compras', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify(compra)
+                });
+                
+                if (response.ok) {
+                    cerrarModalCompra();
+                    cargarCompras();
+                    alert('Compra registrada exitosamente');
+                } else {
+                    alert('Error al registrar la compra');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al registrar la compra');
+            }
+        }
+
+        async function cargarCompras() {
+            try {
+                // Calcular fecha de hace una semana y fecha actual en zona horaria de Perú
+                const fechaActual = new Date();
+                const offsetPeru = -5 * 60;
+                const fechaActualPeru = new Date(fechaActual.getTime() + (fechaActual.getTimezoneOffset() + offsetPeru) * 60000);
+                fechaActualPeru.setHours(23, 59, 59, 999);
+                
+                const fechaSemanaAnterior = new Date(fechaActualPeru);
+                fechaSemanaAnterior.setDate(fechaActualPeru.getDate() - 7);
+                fechaSemanaAnterior.setHours(0, 0, 0, 0);
+
+                const formatoFecha = { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric',
+                    timeZone: 'America/Lima'
+                };
+
+                const fechaActualStr = fechaActualPeru.toLocaleDateString('es-PE', formatoFecha);
+                const fechaSemanaAnteriorStr = fechaSemanaAnterior.toLocaleDateString('es-PE', formatoFecha);
+
+                const response = await fetch('/api/compras?desde=' + fechaSemanaAnterior.toISOString(), {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const compras = await response.json();
+                    const tbody = document.getElementById('purchasesTableBody');
+                    tbody.innerHTML = '';
+                    
+                    // Agregar título con el rango de fechas
+                    const titleElement = document.createElement('div');
+                    titleElement.className = 'date-range';
+                    titleElement.textContent = `Compras desde ${fechaSemanaAnteriorStr} hasta ${fechaActualStr}`;
+                    const existingTitle = tbody.parentElement.parentElement.querySelector('.date-range');
+                    if (existingTitle) {
+                        existingTitle.remove();
+                    }
+                    tbody.parentElement.parentElement.insertBefore(titleElement, tbody.parentElement);
+                    
+                    compras.forEach(compra => {
+                        const fechaCompra = new Date(compra.fecha);
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${fechaCompra.toLocaleDateString('es-PE', formatoFecha)}</td>
+                                <td>${compra.descripcion}</td>
+                                <td>S/ ${parseFloat(compra.total).toFixed(2)}</td>
+                                <td>${compra.documento}</td>
+                                <td>
+                                    <button class="btn btn-delete" onclick="eliminarCompra(${compra.id})">
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+
+                    // Agregar total de la semana
+                    const total = compras.reduce((sum, compra) => sum + parseFloat(compra.total), 0);
+                    const totalRow = document.createElement('tr');
+                    totalRow.className = 'total-row';
+                    totalRow.innerHTML = `
+                        <td colspan="2">Total de la semana:</td>
+                        <td>S/ ${total.toFixed(2)}</td>
+                        <td></td>
+                        <td></td>
+                    `;
+                    tbody.appendChild(totalRow);
+                }
+            } catch (error) {
+                console.error('Error al cargar compras:', error);
+            }
+        }
+
+        async function descargarExcelCompras() {
+            try {
+                const response = await fetch('/api/compras/excel', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'compras.xlsx';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }
+            } catch (error) {
+                console.error('Error al descargar Excel:', error);
+                alert('Error al descargar el archivo Excel');
             }
         }
 
@@ -408,120 +560,27 @@
             }
         }
 
-        async function descargarExcelVentas() {
-            try {
-                const response = await fetch('/api/ventas/excel', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'ventas.xlsx';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }
-            } catch (error) {
-                console.error('Error al descargar Excel:', error);
-            }
-        }
-
-        // Funciones para compras
-        function abrirRegistroCompra() {
-            document.getElementById('modalCompra').style.display = 'flex';
-            document.getElementById('fechaCompra').valueAsDate = new Date();
-        }
-
-        function cerrarModalCompra() {
-            document.getElementById('modalCompra').style.display = 'none';
-            document.getElementById('formCompra').reset();
-        }
-
-        async function registrarCompra(event) {
-            event.preventDefault();
-            
-            const compra = {
-                fecha: document.getElementById('fechaCompra').value,
-                descripcion: document.getElementById('descripcionCompra').value,
-                total: document.getElementById('totalCompra').value,
-                documento: document.getElementById('documentoCompra').value
-            };
-            
-            try {
-                const response = await fetch('/api/compras', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    },
-                    body: JSON.stringify(compra)
-                });
-                
-                if (response.ok) {
-                    cerrarModalCompra();
-                    cargarCompras();
-                }
-            } catch (error) {
-                console.error('Error al registrar compra:', error);
-            }
-        }
-
-        async function cargarCompras() {
-            try {
-                const response = await fetch('/api/compras', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const compras = await response.json();
-                    const tbody = document.getElementById('purchasesTableBody');
-                    tbody.innerHTML = '';
-                    
-                    compras.forEach(compra => {
-                        tbody.innerHTML += `
-                            <tr>
-                                <td>${new Date(compra.fecha).toLocaleDateString()}</td>
-                                <td>${compra.descripcion}</td>
-                                <td>S/ ${parseFloat(compra.total).toFixed(2)}</td>
-                                <td>${compra.documento}</td>
-                            </tr>
-                        `;
+        // Función para eliminar compra
+        async function eliminarCompra(id) {
+            if (confirm('¿Está seguro que desea eliminar esta compra?')) {
+                try {
+                    const response = await fetch(`/api/compras/${id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Authorization': `Bearer ${localStorage.getItem('token')}`
+                        }
                     });
-                }
-            } catch (error) {
-                console.error('Error al cargar compras:', error);
-            }
-        }
-
-        async function descargarExcelCompras() {
-            try {
-                const response = await fetch('/api/compras/excel', {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    
+                    if (response.ok) {
+                        cargarCompras();
+                        alert('Compra eliminada exitosamente');
+                    } else {
+                        alert('Error al eliminar la compra');
                     }
-                });
-                
-                if (response.ok) {
-                    const blob = await response.blob();
-                    const url = window.URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = 'compras.xlsx';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar la compra');
                 }
-            } catch (error) {
-                console.error('Error al descargar Excel:', error);
             }
         }
     </script>
