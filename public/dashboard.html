@@ -158,6 +158,20 @@
         .btn-delete:hover {
             opacity: 0.9;
         }
+
+        .date-range {
+            margin-bottom: 1rem;
+            padding: 0.5rem;
+            background-color: var(--background-color);
+            border-radius: var(--border-radius);
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .total-row {
+            background-color: var(--background-color) !important;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -320,9 +334,6 @@
                                 <td>S/ ${parseFloat(venta.total).toFixed(2)}</td>
                                 <td>${venta.metodoPago}</td>
                                 <td>
-                                    <button class="btn btn-edit" onclick="editarVenta(${venta.id})">
-                                        Editar
-                                    </button>
                                     <button class="btn btn-delete" onclick="eliminarVenta(${venta.id})">
                                         Eliminar
                                     </button>
@@ -336,9 +347,9 @@
                     const totalRow = document.createElement('tr');
                     totalRow.className = 'total-row';
                     totalRow.innerHTML = `
-                        <td colspan="4">Total de la semana:</td>
+                        <td colspan="3">Total de la semana:</td>
                         <td>S/ ${total.toFixed(2)}</td>
-                        <td></td>
+                        <td colspan="2"></td>
                     `;
                     tbody.appendChild(totalRow);
                 }
@@ -374,6 +385,7 @@
         // Funciones para compras
         function abrirRegistroCompra() {
             document.getElementById('modalCompra').style.display = 'flex';
+            document.getElementById('fechaCompra').valueAsDate = new Date();
         }
 
         function cerrarModalCompra() {
@@ -481,8 +493,7 @@
                     totalRow.innerHTML = `
                         <td colspan="2">Total de la semana:</td>
                         <td>S/ ${total.toFixed(2)}</td>
-                        <td></td>
-                        <td></td>
+                        <td colspan="2"></td>
                     `;
                     tbody.appendChild(totalRow);
                 }
@@ -513,26 +524,6 @@
             } catch (error) {
                 console.error('Error al descargar Excel:', error);
                 alert('Error al descargar el archivo Excel');
-            }
-        }
-
-        // Función para editar venta
-        async function editarVenta(id) {
-            try {
-                const response = await fetch(`/api/ventas/${id}`, {
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const venta = await response.json();
-                    // Redirigir a la página de edición con los datos de la venta
-                    window.location.href = `venta.html?id=${id}&edit=true&data=${encodeURIComponent(JSON.stringify(venta))}`;
-                }
-            } catch (error) {
-                console.error('Error al obtener venta:', error);
-                alert('Error al cargar los datos de la venta');
             }
         }
 
